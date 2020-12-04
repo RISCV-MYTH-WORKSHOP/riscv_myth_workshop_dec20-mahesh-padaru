@@ -13,18 +13,17 @@
 \TLV
    $reset = *reset;
 
-   $val1[31:0] = >>1$out[31:0];
-   $val2[31:0] = $rand2[3:0];
-   
-   $sum[31:0] = $val1[31:0] + $val2[31:0];
-   $diff[31:0] = $val1[31:0] - $val2[31:0];
-   $prod[31:0] = $val1[31:0] * $val2[31:0];
-   $quot[31:0] = $val1[31:0] / $val2[31:0];
-   
-   $out[31:0] = $reset ? 0 : ($op[1] ? ( $op[0] ? $quot[31:0] : $prod[31:0] ) : ( $op[0] ? $diff[31:0] : $sum[31:0]));
-   
-   $cnt[31:0] = $reset ? 0 : (>>1$cnt + 1);
-   $fib[31:0] = $reset ? 1 : (>>1$fib[31:0] + >>2$fib[31:0]);
+   |calc
+      @1
+         $val1[31:0] = >>1$out[31:0];
+         $val2[31:0] = $rand2[3:0]; 
+         $sum[31:0] = $val1[31:0] + $val2[31:0];
+         $diff[31:0] = $val1[31:0] - $val2[31:0];
+         $prod[31:0] = $val1[31:0] * $val2[31:0];
+         $quot[31:0] = $val1[31:0] / $val2[31:0];
+         $out[31:0] = $reset ? 0 : ($op[1] ? ( $op[0] ? $quot[31:0] : $prod[31:0] ) : ( $op[0] ? $diff[31:0] : $sum[31:0]));
+         $cnt[31:0] = $reset ? 0 : (>>1$cnt + 1);
+         $fib[31:0] = $reset ? 1 : (>>1$fib[31:0] + >>2$fib[31:0]);
    
    // Assert these to end simulation (before Makerchip cycle limit).
    *passed = *cyc_cnt > 40;
