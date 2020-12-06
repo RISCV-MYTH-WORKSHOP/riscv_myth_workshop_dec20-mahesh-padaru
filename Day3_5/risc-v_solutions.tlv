@@ -41,7 +41,8 @@
    |cpu
       @0
          $reset = *reset;
-         $pc[31:0] = >>1$reset ? '0 : (>>1$pc[31:0] + 32'h4);
+         $pc[31:0] = >>1$reset ? '0 : (>>1$taken_br ? >>1$br_tgt_pc :
+                                                     (>>1$pc[31:0] + 32'h4));
          $imem_rd_en = ~ $reset;
          $imem_rd_addr[M4_IMEM_INDEX_CNT-1:0] = $pc[M4_IMEM_INDEX_CNT+1:2];
          
@@ -128,7 +129,16 @@
                          $is_add  ? $src1_value + $src2_value :
                                     32'bx;
          
+         //Branch resolution
+         $taken_br = $is_beq ? ($src1_value == $src2_value) :
+                     $is_bne ? ($src1_value != $src2_value) :
+                     $is_blt ? (($src1_value < $src2_value) ^ ($src1_value[31] != $src2_value[31])) :
+                     $is_bge ? (($src1_value >= $src2_value) ^ ($src1_value[31] != $src2_value[31])) :
+                     $is_bltu ? ($src1_value < $src2_value) :
+                     $is_bgeu ? ($src1_value >= $src2_value) :
+                     1'b0;
          
+         $br_tgt_pc[31:0] = $imm[31:0] + $pc[31:0];
 
       // Note: Because of the magic we are using for visualisation, if visualisation is enabled below,
       //       be sure to avoid having unassigned signals (which you might be using for random inputs)
@@ -136,7 +146,7 @@
 
    
    // Assert these to end simulation (before Makerchip cycle limit).
-   *passed = *cyc_cnt > 40;
+   *passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
    *failed = 1'b0;
    
    // Macro instantiations for:
