@@ -68,6 +68,7 @@
 
          $is_j_instr = $instr[6:2] == 5'b11011;
 
+
          //Immediate value decode
          $imm[31:0] = $is_i_instr ? { {21{$instr[31]}} , $instr[30:20]} :
                       $is_s_instr ? { {21{$instr[31]}} , $instr[30:25] , $instr[11:8] , $instr[7]} :
