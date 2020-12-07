@@ -1,7 +1,7 @@
 \m4_TLV_version 1d: tl-x.org
 \SV
    // Template code can be found in: https://github.com/stevehoover/RISC-V_MYTH_Workshop
-   // URL for this code : https://myth2.makerchip.com/sandbox/0rkfAhyN8/0vgh769#
+   // URL for this code : https://myth2.makerchip.com/sandbox/0rkfAhyN8/0wjhG16#
    
    m4_include_lib(['https://raw.githubusercontent.com/stevehoover/RISC-V_MYTH_Workshop/c1719d5b338896577b79ee76c2f443ca2a76e14f/tlv_lib/risc-v_shell_lib.tlv'])
 
@@ -127,15 +127,16 @@
          $rf_rd_index1[4:0] = $rs1[4:0];
          $rf_rd_index2[4:0] = $rs2[4:0];
          
-         $src1_value[31:0] = $reg_file_bypass ? >>1$result[31:0] : $rf_rd_data1[31:0];
-         $src2_value[31:0] = $reg_file_bypass ? >>1$result[31:0] : $rf_rd_data2[31:0];
+         $src1_value[31:0] = $rs1_bypass ? >>1$result[31:0] : $rf_rd_data1[31:0];
+         $src2_value[31:0] = $rs2_bypass ? >>1$result[31:0] : $rf_rd_data2[31:0];
          
          //Branch target PC computation
          $br_tgt_pc[31:0] = $imm[31:0] + $pc[31:0];
          
          //RAW dependence check for ALU data forwarding
          //If previous instruction was writing to reg file, and current instruction is reading from same register
-         $reg_file_bypass = >>1$rf_wr_en && ((>>1$rd == $rs1) || (>>1$rd == $rs2));
+         $rs1_bypass = >>1$rf_wr_en && (>>1$rd == $rs1);
+         $rs2_bypass = >>1$rf_wr_en && (>>1$rd == $rs2);
          
       @3
          //ALU
