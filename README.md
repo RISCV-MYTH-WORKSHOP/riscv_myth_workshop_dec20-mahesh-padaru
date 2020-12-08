@@ -1,5 +1,6 @@
-# RISC-V_MYTH_Workshop
+# RISC-V MYTH Core
 
-For students of "Microprocessor for You in Thirty Hours" Workshop, offered by for VLSI System Design (VSD) and Redwood EDA, find here accompanying live info and links.
+This RISC-V Core was developed as a part of "Microprocessor for You in Thirty Hours" Workshop, offered by VLSI System Design (VSD) and Redwood EDA.
 
-Check the folders for assignments for particular days.
+Introduction to RISC-V
+
