@@ -1,7 +1,7 @@
 \m4_TLV_version 1d: tl-x.org
 \SV
    // Template code can be found in: https://github.com/stevehoover/RISC-V_MYTH_Workshop
-   // URL for this code : https://myth2.makerchip.com/sandbox/0rkfAhyN8/0xGh1A3#
+   // URL for this code : https://myth2.makerchip.com/sandbox/0rkfAhyN8/0X6hXv3#
    
    m4_include_lib(['https://raw.githubusercontent.com/stevehoover/RISC-V_MYTH_Workshop/c1719d5b338896577b79ee76c2f443ca2a76e14f/tlv_lib/risc-v_shell_lib.tlv'])
 
@@ -44,6 +44,7 @@
          
          //?$valid_or_reset
          $pc[31:0] = >>1$reset ? '0 : (>>3$valid_taken_br ? >>3$br_tgt_pc :
+                                       >>3$is_load        ? >>3$inc_pc[31:0] :
                                                      (>>1$inc_pc[31:0]));
          $imem_rd_en = ~ $reset;
          $imem_rd_addr[M4_IMEM_INDEX_CNT-1:0] = $pc[M4_IMEM_INDEX_CNT+1:2];
@@ -115,14 +116,14 @@
          $is_bge   = $dec_bits ==? 11'bx_101_1100011;
          $is_bltu  = $dec_bits ==? 11'bx_110_1100011;
          $is_bgeu  = $dec_bits ==? 11'bx_111_1100011;
+         
+         $is_auipc = $dec_bits ==? 11'bx_xxx_0010111;
+         $is_jal   = $dec_bits ==? 11'bx_xxx_1101111;
+         
          $is_addi  = $dec_bits ==? 11'bx_000_0010011;
          $is_add   = $dec_bits ==  11'b0_000_0110011;
          $is_lui   = $dec_bits ==? 11'bx_xxx_0110111;
-         $is_auipc = $dec_bits ==? 11'bx_xxx_0010111;
-         $is_jal   = $dec_bits ==? 11'bx_xxx_1101111;
-         $is_sb    = $dec_bits ==? 11'bx_000_0100011;
-         $is_sh    = $dec_bits ==? 11'bx_001_0100011;
-         $is_sw    = $dec_bits ==? 11'bx_010_0100011;
+         
          $is_slti  = $dec_bits ==? 11'bx_010_0010011;
          $is_sltiu = $dec_bits ==? 11'bx_011_0010011;
          $is_xori  = $dec_bits ==? 11'bx_100_0010011;
@@ -141,6 +142,11 @@
          $is_or    = $dec_bits ==? 11'b0_110_0110011;
          $is_and   = $dec_bits ==? 11'b0_111_0110011;
          
+         $is_sb    = $dec_bits ==? 11'bx_000_0100011;
+         $is_sh    = $dec_bits ==? 11'bx_001_0100011;
+         $is_sw    = $dec_bits ==? 11'bx_010_0100011;
+         
+         $is_load  = $dec_bits ==? 11'bx_xxx_0000011;
          
       @2
          //Source register values from reg file
@@ -186,6 +192,8 @@
                          $is_slt   ? (($src1_value[31] == $src2_value[31]) ? $sltu_rslt : {31'b0, $src1_value[31]}):
                          $is_slti  ? (($src1_value[31] == $imm[31]) ? $sltiu_rslt : {31'b0, $src1_value[31]}) :
                          $is_sra   ? ({ {32{$src1_value[31]}}, $src1_value} >> $src2_value[4:0]) :
+                         $is_load  ? $src1_value +  $imm :
+                         $is_s_instr ? $src1_value + $imm :
                                     32'bx;
          
          $sltu_rslt[31:0]  = $src1_value <  $src2_value;
@@ -200,13 +208,19 @@
                      $is_bgeu ? ($src1_value >= $src2_value) :
                      1'b0;
          
-         $valid = ~(>>1$valid_taken_br || >>2$valid_taken_br);
+         //Current instruction is valid if one of the previous 2 instructions where not taken_branch or load
+         $valid = ~(>>1$valid_taken_br || >>2$valid_taken_br || >>1$is_load || >>2$is_load);
+         
+         //Current instruction is valid & is a taken branch
          $valid_taken_br = $valid && $taken_br;
          
+         //Current instruction is valid & is a load
+         $valid_load = $valid && $is_load;
+         
          //Destination register update
-         $rf_wr_en = ($rd != '0) && $rd_valid && $valid;
-         $rf_wr_index[4:0] = $rd[4:0];
-         $rf_wr_data[31:0] = $result[31:0];
+         $rf_wr_en = (($rd != '0) && $rd_valid && $valid) || >>2$valid_load;
+         $rf_wr_index[4:0] = $valid ? $rd[4:0] : >>2$result;
+         $rf_wr_data[31:0] = $valid ? $result[31:0] : >>2$ld_data[31:0];
          
          
          
