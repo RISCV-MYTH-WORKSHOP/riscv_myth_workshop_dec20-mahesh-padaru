@@ -1,11 +1,14 @@
 # RISC-V MYTH Core
 
 This RISC-V Core was developed as a part of "Microprocessor for You in Thirty Hours" Workshop, offered by VLSI System Design (VSD) and Redwood EDA.
-RISC-V is an open-source instruction set architecture (ISA) based on RISC (Reduced Instruction Set Computer). This main goal of making this ISA open-source by its inventors was to enable any particular individual or company to build a CPU based on RISC-V ISA with a goal of this being computing standard in the next gen. 
+
+RISC-V is an open-source instruction set architecture (ISA) based on RISC (Reduced Instruction Set Computer). The main goal of making this ISA open-source by its inventors was to enable any particular individual or company to build a CPU based on RISC-V ISA with a goal of this being computing standard in the next gen. 
 
 More information about the ISA can be found here-  
 [RISC-V Specifications](https://riscv.org/technical/specifications/)  
 [RISC-V card](https://inst.eecs.berkeley.edu//~cs61c/fa17/img/riscvcard.pdf)  
+
+### Toochain
 
 ### GCC Compiler for C
 To compile : gcc <prog.c>
